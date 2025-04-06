@@ -1,0 +1,4 @@
+itemId,name,width,depth,height,priority,expiryDate,usageLimit,preferredZone
+001,Food Packet,10,10,20,80,2025-05-20,30,Crew Quarters
+002,Oxygen Cylinder,15,15,50,95,N/A,100,Airlock
+003,Medical Kit,20,15,25,90,2025-12-31,50,Medical Bay

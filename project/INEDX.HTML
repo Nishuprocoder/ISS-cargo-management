@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Cargo Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Space-themed background with animated stars */
+        body {
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E2E8F0;
+        }
+
+        /* Animated starfield */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: -1;
+        }
+
+        .stars::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            background-image: 
+                radial-gradient(1px 1px at 25px 5px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 50px 25px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 125px 20px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 50px 75px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 15px 125px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 110px 80px, white 1px, transparent 1px),
+                radial-gradient(1px 1px at 175px 125px, white 1px, transparent 1px);
+            background-size: 200px 200px;
+            animation: starsAnimation 50s linear infinite;
+        }
+
+        @keyframes starsAnimation {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* ISS Station Animation */
+        .iss {
+            position: fixed;
+            top: 20%;
+            right: 5%;
+            width: 150px;
+            height: 50px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30"><path d="M10,15 Q50,0 90,15 Q50,30 10,15 Z" fill="%23D1D5DB" opacity="0.8"/><rect x="30" y="10" width="40" height="10" rx="2" fill="%23E5E7EB" opacity="0.9"/><circle cx="20" cy="15" r="3" fill="%23F59E0B"/><circle cx="80" cy="15" r="3" fill="%23F59E0B"/></svg>') no-repeat;
+            animation: float 15s ease-in-out infinite;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(1deg); }
+            50% { transform: translateY(-20px) rotate(-1deg); }
+        }
+
+        /* Container styling */
+        .container {
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+        }
+
+        /* Section styling */
+        section {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E2E8F0;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #38BDF8 0%, #818CF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 1.75rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Buttons */
+        button {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Inputs */
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #E2E8F0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #94A3B8;
+            opacity: 0.7;
+        }
+
+        /* File input customization */
+        input[type="file"]::file-selector-button {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-right: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #2563EB;
+        }
+
+        /* Labels */
+        label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            color: #94A3B8;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Console output */
+        #output {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.875rem;
+            color: #E2E8F0;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3B82F6;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563EB;
+        }
+
+        /* Animations */
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scale-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-slide-up {
+            animation: slide-up 0.5s ease-out forwards;
+        }
+
+        .animate-scale-in {
+            animation: scale-in 0.3s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-active {
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+        }
+
+        .status-warning {
+            background: #F59E0B;
+            box-shadow: 0 0 8px #F59E0B;
+        }
+
+        .status-critical {
+            background: #EF4444;
+            box-shadow: 0 0 8px #EF4444;
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 3D Panel Effect */
+        .panel-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(5deg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Glow effects */
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .glow-blue:hover {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.7);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative overflow-x-hidden">
+    <!-- Background Elements -->
+    <div class="stars"></div>
+    <div class="iss"></div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 lg:p-8 max-w-6xl mt-8 mb-16 relative z-10">
+        <!-- Header with Mission Status -->
+        <header class="mb-8 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <span class="status-indicator status-active"></span>
+                <span class="text-sm text-green-400">MISSION NOMINAL</span>
+                <span class="status-indicator status-active"></span>
+            </div>
+            <h1 class="text-4xl font-bold mb-2">
+                <i class="fas fa-satellite-dish text-blue-400 mr-2"></i> 
+                ISS CARGO COMMAND
+            </h1>
+            <p class="text-blue-300 opacity-80">Orbital Logistics Management System v2.0</p>
+            <div class="flex justify-center gap-4 mt-4">
+                <span class="text-sm bg-gray-800 px-3 py-1 rounded-full">
+                    <i class="fas fa-clock mr-1"></i> <span id="mission-time">00:00:00 UTC</span>
+                </span>
+                <span class="text-sm bg-gray-800 px-3 py-1 rounded-full">
+                    <i class="fas fa-user-astronaut mr-1"></i> <span id="current-user">CDR. Jane Doe</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="space-y-8">
+            <!-- System Status Overview -->
+            <section class="animate-slide-up panel-3d">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-chart-bar text-blue-400 mr-2"></i> System Overview
+                </h2>
+                <div class="dashboard-grid">
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-blue-300">Cargo Inventory</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-3xl font-bold">1</p>
+                                <p class="text-sm text-gray-400">Total Items</p>
+                            </div>
+                            <i class="fas fa-boxes text-blue-400 text-4xl opacity-60"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-blue-300">Container Status</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-3xl font-bold">87%</p>
+                                <p class="text-sm text-gray-400">Utilization</p>
+                            </div>
+                            <i class="fas fa-pallet text-green-400 text-4xl opacity-60"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-blue-300">Critical Items</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-3xl font-bold">12</p>
+                                <p class="text-sm text-gray-400">Low Stock</p>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-yellow-400 text-4xl opacity-60"></i>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-blue-300">Waste Management</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-3xl font-bold">342kg</p>
+                                <p class="text-sm text-gray-400">Pending Disposal</p>
+                            </div>
+                            <i class="fas fa-trash-alt text-red-400 text-4xl opacity-60"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Operations Section -->
+            <section class="animate-slide-up">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-cogs text-blue-400 mr-2"></i> Operations
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="showImportModal()" class="bg-blue-600 hover:bg-blue-700 glow-blue text-white">
+                        <i class="fas fa-file-import"></i> Import Data
+                    </button>
+                    <button onclick="showPlacementModal()" class="bg-green-600 hover:bg-green-700 text-white">
+                        <i class="fas fa-boxes"></i> Auto Placement
+                    </button>
+                    <button onclick="showSearchModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+                        <i class="fas fa-search"></i> Search & Retrieve
+                    </button>
+                    <button onclick="showWasteModal()" class="bg-red-600 hover:bg-red-700 text-white">
+                        <i class="fas fa-trash-restore"></i> Waste Ops
+                    </button>
+                </div>
+            </section>
+
+            <!-- Quick Actions Section -->
+            <section class="animate-slide-up">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-bolt text-blue-400 mr-2"></i> Quick Actions
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button onclick="simulateDays(1)" class="bg-purple-600 hover:bg-purple-700 text-white">
+                        <i class="fas fa-forward"></i> +1 Day
+                    </button>
+                    <button onclick="simulateDays(7)" class="bg-purple-700 hover:bg-purple-800 text-white">
+                        <i class="fas fa-fast-forward"></i> +7 Days
+                    </button>
+                    <button onclick="viewLogs()" class="bg-gray-600 hover:bg-gray-700 text-white">
+                        <i class="fas fa-history"></i> View Logs
+                    </button>
+                    <button onclick="generateReport()" class="bg-cyan-600 hover:bg-cyan-700 text-white">
+                        <i class="fas fa-file-alt"></i> Generate Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Visualization Section -->
+            <section class="animate-slide-up">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-chart-pie text-blue-400 mr-2"></i> Cargo Distribution
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-center">Zone Utilization</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <!-- Placeholder for chart -->
+                            <div class="text-gray-400">
+                                <i class="fas fa-chart-pie text-5xl opacity-30 mb-2"></i>
+                                <p>Zone utilization chart</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium mb-2 text-center">Item Categories</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <!-- Placeholder for chart -->
+                            <div class="text-gray-400">
+                                <i class="fas fa-chart-bar text-5xl opacity-30 mb-2"></i>
+                                <p>Category distribution chart</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Console Output -->
+            <section class="animate-slide-up">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold flex items-center">
+                        <i class="fas fa-terminal text-blue-400 mr-2"></i> System Console
+                    </h2>
+                    <div class="flex gap-2">
+                        <button onclick="clearConsole()" class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <button onclick="copyConsole()" class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-3 py-1">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                <pre id="output" class="text-sm overflow-auto bg-gray-900 p-4 rounded-md border border-gray-700"></pre>
+                <div id="loading" class="hidden mt-4 text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-400 mr-2"></i>
+                    <span>Processing command...</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Import Modal -->
+    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl animate-scale-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">
+                        <i class="fas fa-file-import text-blue-400 mr-2"></i> Import Data
+                    </h3>
+                    <button onclick="closeModal('importModal')" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2">Select Data Type</label>
+                        <select id="importType" class="w-full">
+                            <option value="items">Cargo Items</option>
+                            <option value="containers">Storage Containers</option>
+                            <option value="crew">Crew Manifest</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2">Select File (CSV)</label>
+                        <input type="file" id="importFile" accept=".csv" class="w-full">
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="processImport()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
+                            <i class="fas fa-upload mr-2"></i> Upload & Process
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-md animate-scale-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">
+                        <i class="fas fa-search text-indigo-400 mr-2"></i> Locate Cargo Item
+                    </h3>
+                    <button onclick="closeModal('searchModal')" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2">Item Identifier</label>
+                        <input type="text" id="searchItemId" placeholder="Enter Item ID or Name" class="w-full">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="searchItem()" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+                            <i class="fas fa-search mr-2"></i> Search
+                        </button>
+                        <button onclick="retrieveItem()" class="bg-green-600 hover:bg-green-700 text-white">
+                            <i class="fas fa-hand-holding mr-2"></i> Retrieve
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placement Modal -->
+    <div id="placementModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl animate-scale-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">
+                        <i class="fas fa-boxes text-green-400 mr-2"></i> Automated Placement
+                    </h3>
+                    <button onclick="closeModal('placementModal')" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2">Placement Strategy</label>
+                        <select id="placementStrategy" class="w-full">
+                            <option value="optimized">Optimized (Default)</option>
+                            <option value="priority">Priority-Based</option>
+                            <option value="zone">Zone-Preferred</option>
+                            <option value="compact">Most Compact</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2">Items to Place</label>
+                        <select id="placementItems" class="w-full" multiple size="4">
+                            <option value="all" selected>All Unplaced Items</option>
+                            <option value="priority">Priority Items Only</option>
+                            <option value="new">Newly Imported Items</option>
+                            <option value="selected">Select Manually...</option>
+                        </select>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="placeItems()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg">
+                            <i class="fas fa-cogs mr-2"></i> Run Placement Algorithm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Waste Management Modal -->
+    <div id="wasteModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl animate-scale-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold">
+                        <i class="fas fa-trash-restore text-red-400 mr-2"></i> Waste Management
+                    </h3>
+                    <button onclick="closeModal('wasteModal')" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-2">Operation</label>
+                        <select id="wasteOperation" class="w-full">
+                            <option value="identify">Identify Waste Items</option>
+                            <option value="plan">Generate Return Plan</option>
+                            <option value="schedule">Schedule Return Vehicle</option>
+                        </select>
+                    </div>
+                    <div id="wasteOptions" class="space-y-4 hidden">
+                        <div>
+                            <label class="block mb-2">Return Vehicle</label>
+                            <select id="returnVehicle" class="w-full">
+                                <option value="dragon">SpaceX Dragon</option>
+                                <option value="cygnus">Northrop Grumman Cygnus</option>
+                                <option value="progress">Progress MS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-2">Undocking Date</label>
+                            <input type="date" id="undockingDate" class="w-full">
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="manageWaste()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg">
+                            <i class="fas fa-play mr-2"></i> Execute Operation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast" class="fixed top-4 right-4 space-y-2 z-50"></div>
+
+    <script>
+        // Enhanced ISS Cargo Management System
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        // State Management
+        const state = {
+            currentUser: 'CDR. Jane Doe',
+            output: document.getElementById('output'),
+            loading: document.getElementById('loading'),
+            toastContainer: document.getElementById('toast'),
+            missionStartTime: new Date(),
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMissionTime();
+            setInterval(updateMissionTime, 1000);
+            logToConsole('System initialized. Ready for commands.');
+        });
+
+        // Utility Functions
+        const showLoading = () => state.loading.classList.remove('hidden');
+        const hideLoading = () => state.loading.classList.add('hidden');
+
+        const showToast = (message, type = 'success', duration = 3000) => {
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-md shadow-lg flex items-start animate-fade-in ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+            }`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            toast.innerHTML = `
+                <i class="fas ${icon} mr-2 mt-0.5"></i>
+                <div>
+                    <p class="font-medium">${message}</p>
+                    <p class="text-xs opacity-80 mt-1">${new Date().toLocaleTimeString()}</p>
+                </div>
+            `;
+            
+            state.toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        };
+
+        const logToConsole = (message, type = 'info') => {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const prefix = type === 'error' ? '[ERROR]' : 
+                         type === 'warning' ? '[WARN]' : 
+                         type === 'success' ? '[SUCCESS]' : '[INFO]';
+            
+            const color = type === 'error' ? 'text-red-400' : 
+                         type === 'warning' ? 'text-yellow-400' : 
+                         type === 'success' ? 'text-green-400' : 'text-blue-400';
+            
+            const line = document.createElement('div');
+            line.className = `font-mono text-sm ${color}`;
+            line.innerHTML = `[${timestamp}] ${prefix} ${message}`;
+            state.output.appendChild(line);
+            state.output.scrollTop = state.output.scrollHeight;
+        };
+
+        const clearConsole = () => {
+            state.output.innerHTML = '';
+            logToConsole('Console cleared');
+        };
+
+        const copyConsole = () => {
+            navigator.clipboard.writeText(state.output.innerText)
+                .then(() => showToast('Console content copied to clipboard', 'success'))
+                .catch(err => showToast('Failed to copy console content', 'error'));
+        };
+
+        const updateMissionTime = () => {
+            const now = new Date();
+            const elapsed = new Date(now - state.missionStartTime);
+            const hours = elapsed.getUTCHours().toString().padStart(2, '0');
+            const minutes = elapsed.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = elapsed.getUTCSeconds().toString().padStart(2, '0');
+            document.getElementById('mission-time').textContent = `${hours}:${minutes}:${seconds} UTC`;
+        };
+
+        // Modal Functions
+        const showModal = (modalId) => document.getElementById(modalId).classList.remove('hidden');
+        const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
+
+        const showImportModal = () => showModal('importModal');
+        const showSearchModal = () => showModal('searchModal');
+        const showPlacementModal = () => showModal('placementModal');
+        const showWasteModal = () => {
+            showModal('wasteModal');
+            document.getElementById('wasteOptions').classList.add('hidden');
+        };
+
+        // API Functions
+        const apiCall = async (endpoint, method = 'GET', body = null) => {
+            showLoading();
+            logToConsole(`API call: ${method} ${endpoint}`);
+            
+            const options = {
+                method,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
+                },
+            };
+            
+            if (body) options.body = JSON.stringify(body);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `API error: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                hideLoading();
+                logToConsole(`API success: ${endpoint}`, 'success');
+                return data;
+            } catch (error) {
+                logToConsole(`API error: ${error.message}`, 'error');
+                showToast(`Error: ${error.message}`, 'error');
+                hideLoading();
+                throw error;
+            }
+        };
+
+        // Import Functions
+        const processImport = async () => {
+            const importType = document.getElementById('importType').value;
+            const fileInput = document.getElementById('importFile');
+            
+            if (!fileInput.files.length) {
+                showToast('Please select a file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('type', importType);
+
+            try {
+                showLoading();
+                logToConsole(`Starting import of ${importType} data...`);
+                
+                const response = await fetch(`${API_BASE_URL}/import`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
+                    },
+                });
+
+                if (!response.ok) throw new Error(await response.text());
+                
+                const data = await response.json();
+                logToConsole(`Successfully imported ${data.count} ${importType} records`, 'success');
+                showToast(`Imported ${data.count} ${importType} records`, 'success');
+                closeModal('importModal');
+            } catch (error) {
+                logToConsole(`Import failed: ${error.message}`, 'error');
+                showToast(`Import failed: ${error.message}`, 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // Placement Functions
+        const placeItems = async () => {
+            const strategy = document.getElementById('placementStrategy').value;
+            const itemsToPlace = Array.from(document.getElementById('placementItems').selectedOptions)
+                                    .map(opt => opt.value);
+            
+            try {
+                logToConsole(`Running placement algorithm with strategy: ${strategy}`);
+                const data = await apiCall('/placement', 'POST', {
+                    strategy,
+                    items: itemsToPlace,
+                    optimizeFor: 'volume'
+                });
+                
+                logToConsole(`Placed ${data.placedItems} items in ${data.usedContainers} containers`, 'success');
+                showToast(`Successfully placed ${data.placedItems} items`, 'success');
+                closeModal('placementModal');
+            } catch (error) {
+                logToConsole(`Placement failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Search & Retrieve Functions
+        const searchItem = async () => {
+            const itemId = document.getElementById('searchItemId').value.trim();
+            if (!itemId) {
+                showToast('Please enter an item identifier', 'warning');
+                return;
+            }
+
+            try {
+                logToConsole(`Searching for item: ${itemId}`);
+                const data = await apiCall(`/items/${encodeURIComponent(itemId)}`);
+                
+                const location = data.containerId ? 
+                    `Container ${data.containerId} in ${data.zone}` : 
+                    'Not currently placed';
+                
+                logToConsole(`Found item: ${data.name} (${data.id}) - ${location}`, 'success');
+                showToast(`Found item in ${data.zone || 'unplaced'}`, 'success');
+            } catch (error) {
+                logToConsole(`Search failed: ${error.message}`, 'error');
+            }
+        };
+
+        const retrieveItem = async () => {
+            const itemId = document.getElementById('searchItemId').value.trim();
+            if (!itemId) {
+                showToast('Please enter an item identifier', 'warning');
+                return;
+            }
+
+            try {
+                logToConsole(`Attempting to retrieve item: ${itemId}`);
+                const data = await apiCall(`/items/${encodeURIComponent(itemId)}/retrieve`, 'POST', {
+                    retrievedBy: state.currentUser,
+                    timestamp: new Date().toISOString()
+                });
+                
+                logToConsole(`Retrieved item: ${data.name} from ${data.previousLocation}`, 'success');
+                showToast(`Retrieved ${data.name} successfully`, 'success');
+                closeModal('searchModal');
+            } catch (error) {
+                logToConsole(`Retrieval failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Waste Management
+        const manageWaste = async () => {
+            const operation = document.getElementById('wasteOperation').value;
+            
+            try {
+                if (operation === 'identify') {
+                    logToConsole('Identifying waste items...');
+                    const data = await apiCall('/waste');
+                    logToConsole(`Identified ${data.items.length} waste items totaling ${data.totalMass}kg`, 'success');
+                    showToast(`Found ${data.items.length} waste items`, 'success');
+                    
+                    // Show additional options if waste was found
+                    if (data.items.length > 0) {
+                        document.getElementById('wasteOptions').classList.remove('hidden');
+                    }
+                } 
+                else if (operation === 'plan') {
+                    const vehicle = document.getElementById('returnVehicle').value;
+                    const date = document.getElementById('undockingDate').value;
+                    
+                    if (!date) {
+                        showToast('Please select an undocking date', 'warning');
+                        return;
+                    }
+                    
+                    logToConsole(`Generating return plan for ${vehicle} on ${date}`);
+                    const data = await apiCall('/waste/plan', 'POST', {
+                        vehicle,
+                        undockingDate: date,
+                        maxMass: 1000
+                    });
+                    
+                    logToConsole(`Generated return plan for ${data.items.length} items (${data.totalMass}kg)`, 'success');
+                    showToast(`Return plan generated for ${data.totalMass}kg`, 'success');
+                }
+                else if (operation === 'schedule') {
+                    logToConsole('Scheduling waste return...');
+                    const data = await apiCall('/waste/schedule', 'POST');
+                    logToConsole(`Scheduled waste return on ${data.vehicle} for ${data.undockingDate}`, 'success');
+                    showToast(`Waste return scheduled for ${data.undockingDate}`, 'success');
+                    closeModal('wasteModal');
+                }
+            } catch (error) {
+                logToConsole(`Waste operation failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Simulation
+        const simulateDays = async (days) => {
+            if (!days) days = parseInt(document.getElementById('numDays').value) || 1;
+            
+            try {
+                logToConsole(`Simulating ${days} day${days > 1 ? 's' : ''}...`);
+                const data = await apiCall('/simulate', 'POST', {
+                    days,
+                    consumptionPattern: 'standard'
+                });
+                
+                logToConsole(`Simulation complete. ${data.itemsConsumed} items consumed, ${data.itemsExpired} expired.`, 'success');
+                showToast(`Simulated ${days} day${days > 1 ? 's' : ''}`, 'success');
+            } catch (error) {
+                logToConsole(`Simulation failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Logs
+        const viewLogs = async () => {
+            try {
+                logToConsole('Fetching system logs...');
+                const data = await apiCall('/logs?limit=50');
+                logToConsole(`Retrieved ${data.logs.length} log entries`, 'success');
+                
+                // Display logs in a more detailed way
+                state.output.innerHTML = '';
+                data.logs.forEach(log => {
+                    const line = document.createElement('div');
+                    line.className = `font-mono text-sm mb-1 ${
+                        log.level === 'ERROR' ? 'text-red-400' : 
+                        log.level === 'WARN' ? 'text-yellow-400' : 'text-gray-400'
+                    }`;
+                    line.textContent = `[${log.timestamp}] ${log.message}`;
+                    state.output.appendChild(line);
+                });
+                
+                showToast(`Loaded ${data.logs.length} log entries`, 'success');
+            } catch (error) {
+                logToConsole(`Failed to fetch logs: ${error.message}`, 'error');
+            }
+        };
+
+        // Report Generation
+        const generateReport = async () => {
+            try {
+                logToConsole('Generating inventory report...');
+                const data = await apiCall('/reports/inventory');
+                
+                // In a real app, this would download a PDF or open in new tab
+                logToConsole(`Generated report with ${data.sections} sections`, 'success');
+                showToast('Inventory report generated', 'success');
+                
+                // Display report in console
+                state.output.innerHTML = '';
+                const pre = document.createElement('pre');
+                pre.className = 'font-mono text-sm';
+                pre.textContent = JSON.stringify(data, null, 2);
+                state.output.appendChild(pre);
+            } catch (error) {
+                logToConsole(`Report generation failed: ${error.message}`, 'error');
+            }
+        };
+
+        // Initialize with some sample logs
+        setTimeout(() => {
+            logToConsole('Connected to ISS cargo database', 'success');
+            logToConsole('Last system check: 2025-04-05 08:42:17 UTC', 'info');
+            logToConsole('3 containers approaching capacity threshold', 'warning');
+        }, 1000);
+    </script>
+</body>
+</html>
